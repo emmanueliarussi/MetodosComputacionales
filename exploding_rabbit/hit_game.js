@@ -62,7 +62,8 @@ function printCoordinates(event) {
 
     console.log(triangle_test);
   }
-  
+
+// Click listener
 document.addEventListener("click", printCoordinates);
 
 // Bunny Class
@@ -93,10 +94,12 @@ class Bunny extends PIXI.Sprite {
                                           app.screen.height + this.boundsPadding * 2);
     }
 
+    // Returns score for this bunny
     getScore() {
       return this.score;
     }
     
+    // Updates one step
     move() {
         // Move one step
         this.direction += this.turningSpeed * 0.01;
@@ -117,7 +120,8 @@ class Bunny extends PIXI.Sprite {
             this.y -= this.bounds.height;
         }
     }
-
+    
+    // Returns triangulated boundary
     getBounds() {
         // Use builtin bounding box feature
         let polygon   = super.getBounds(true);
@@ -182,8 +186,6 @@ function createScene() {
 
     // Main scene element
     stage = new PIXI.Container();
-    let mainContainer = new PIXI.Container();
-    stage.addChild(mainContainer);
 
     // Set up background
     bg = new PIXI.TilingSprite(PIXI.Assets.get("grass"), app.screen.width, app.screen.height);
