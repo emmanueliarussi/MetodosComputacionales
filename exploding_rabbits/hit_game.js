@@ -36,7 +36,7 @@ function printCoordinates(event) {
         updateScore(bunnies[i].getScore()); 
         
         // Run explosion animation
-        explode(i);
+        explode(i,click);
 
         // Remove bunny
         app.stage.removeChild(bunnies[i]);
@@ -52,11 +52,11 @@ function printCoordinates(event) {
   }
 
 // Explode!
-function explode(i) {
+function explode(i,point) {
   let explosion = new PIXI.AnimatedSprite(explosionTextures);
   app.stage.addChild(explosion);
-  explosion.x = bunnies[i].x;
-  explosion.y = bunnies[i].y;
+  explosion.x = point[0];
+  explosion.y = point[1];
   explosion.anchor.set(0.5);
   explosion.loop = false;
   explosion.rotation = Math.random() * Math.PI;
