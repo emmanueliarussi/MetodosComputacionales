@@ -21,11 +21,11 @@ let score = 0;
 // Click listener
 function printCoordinates(event) {
     // Click pos    
-    let click = {x:event.clientX, y: event.clientY};
-    console.log(`X: ${click.x}, Y: ${click.y}`);
+    let click = [event.clientX,event.clientY];
 
     // Test colision
     let triangle_test = false;
+
     for (let i = 0; i < totalBunnies; i++) {
       // Test the rabbit
       triangle_test = pointInPolygon(click,bunnies[i].getBounds());
@@ -60,7 +60,7 @@ function explode(i) {
   explosion.anchor.set(0.5);
   explosion.loop = false;
   explosion.rotation = Math.random() * Math.PI;
-  explosion.scale.set(5. + Math.random() * 1.5);
+  explosion.scale.set(2. * bunnies[i].getScaleFactor()  + Math.random() * 1.5);
   explosion.play()
   }
 
@@ -99,6 +99,11 @@ class Bunny extends PIXI.Sprite {
     getScore() {
       return this.score;
     }
+
+    // Returns the scale factor
+    getScaleFactor() {
+      return this.scale_faactor;
+    }
     
     // Updates one step
     move() {
@@ -122,25 +127,19 @@ class Bunny extends PIXI.Sprite {
         }
     }
     
-    // Returns triangulated boundary
+    // Returns  boundary
     getBounds() {
         // Use builtin bounding box feature
         let polygon   = super.getBounds(true);
 
-        // Triangulate
-        let triangles = [];
-
-        // Triangle 1
-        triangles.push({x:polygon.x, y:polygon.y});
-        triangles.push({x:polygon.x+polygon.width, y:polygon.y});
-        triangles.push({x:polygon.x, y:polygon.y+polygon.height});
-
-        // Triangle 2
-        triangles.push({x:polygon.x+polygon.width, y:polygon.y});
-        triangles.push({x:polygon.x, y:polygon.y+polygon.height});
-        triangles.push({x:polygon.x+polygon.width, y:polygon.y+polygon.height});
-
-        return triangles;
+        // Vertices
+        let vertices = [];
+        vertices.push({x:polygon.x, y:polygon.y});
+        vertices.push({x:polygon.x+polygon.width, y:polygon.y});
+        vertices.push({x:polygon.x+polygon.width, y:polygon.y+polygon.height});
+        vertices.push({x:polygon.x, y:polygon.y+polygon.height});
+        
+        return vertices;
     }
 }
 
@@ -206,7 +205,7 @@ function createScene() {
     scoreText = new PIXI.Text(`Score: ${score}`);
     scoreText.style = new PIXI.TextStyle({
       fontFamily: "PublicPixel",
-      fontSize: 40,
+      fontSize: 30,
       fill: 0xFFFFFF,
     });
     scoreText.position.set(10, 10);
