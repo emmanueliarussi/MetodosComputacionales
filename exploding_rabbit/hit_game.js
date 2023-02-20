@@ -70,7 +70,7 @@ document.addEventListener("click", printCoordinates);
 class Bunny extends PIXI.Sprite {
     constructor(texture, name = "none"){
         super(texture);
-        // Set the initial position
+        // Set the initial position and other bunny prop. 
         this.anchor.set(0.5);
         this.x = Math.random() * app.screen.width;
         this.y = Math.random() * app.screen.height;
@@ -150,7 +150,6 @@ function updateScore() {
 
 // Game loop
 function gameLoop(delta) {
-
     // Move bunnies
     for (let i = 0; i < totalBunnies; i++) {
       bunnies[i].move();      
@@ -163,27 +162,27 @@ function gameLoop(delta) {
 
 // Windows resize
 function resizeHandler() {
-
-    const newWidth  = window.innerWidth
-    const newHeight = window.innerHeight
+    // New size
+    const newWidth  = window.innerWidth;
+    const newHeight = window.innerHeight;
     
+    // Resize canvas 
     app.renderer.view.style.width = `${newWidth}px`;
     app.renderer.view.style.height = `${newHeight}px`;
-  
     app.renderer.resize(newWidth, newHeight);
 
-    // Update Bunny and Background
+    // Update bunnies
     for (let i = 0; i < totalBunnies; i++) {
       bunnies[i].reshapeBoundingBounds();
     }
+
+    // Update background
     bg.width  = newWidth;
     bg.height = newHeight;
-
   };
 
 // Create the scene elements 
 function createScene() {
-
     // Main scene element
     stage = new PIXI.Container();
 
@@ -197,8 +196,8 @@ function createScene() {
       let bunny = new Bunny(PIXI.Assets.get("bunny"));
       // Shows hand cursor
       bunny.cursor = 'pointer';
-      bunnies.push(bunny)
-      app.stage.addChild(bunny)
+      bunnies.push(bunny);
+      app.stage.addChild(bunny);
     }
 
     // Score text
@@ -211,14 +210,11 @@ function createScene() {
       fill: 0xFFFFFF,
     });
 
-    
     app.stage.addChild(scoreText);
-    
 }
 
 //  After loading the sprites
 function doneLoading(textures) {
-
     // Create scene elements
     createScene();
 
@@ -231,7 +227,6 @@ function doneLoading(textures) {
 
 // Load game
 window.onload = function() { 
-
     // Create app
     app = new PIXI.Application({ background: '#288C22' });
 
