@@ -1,51 +1,22 @@
+import { pointInPolygon } from './ejercicio.js';
+
 // App
 let app;
 let stage;
 
 // Holder to store the bunnies
 const bunnies = [];
-const totalBunnies   = 20;
+const totalBunnies  = 10;
 
 // Textures 
 let textures;
+let explosionTextures = [];
 let bg;
 
 // Score
 let scoreText;
 let score = 0;
 
-function pointInPolygon(point, polygon) {
-    const v0 = [polygon[0].x, polygon[0].y];
-    for (let i = 1; i < polygon.length - 1; i++) {
-      const v1 = [polygon[i].x, polygon[i].y];
-      const v2 = [polygon[i + 1].x, polygon[i + 1].y];
-      const barycentric = getBarycentricCoordinates(point, v0, v1, v2);
-      if (barycentric[0] >= 0 && barycentric[1] >= 0 && barycentric[2] >= 0) {
-        return true;
-      }
-    }
-    return false;
-  }
-  
-  function getBarycentricCoordinates(point, v0, v1, v2) {
-    const v0v1 = [v1[0] - v0[0], v1[1] - v0[1]];
-    const v0v2 = [v2[0] - v0[0], v2[1] - v0[1]];
-    const v0p = [point.x - v0[0], point.y - v0[1]];
-    const d00 = dotProduct(v0v1, v0v1);
-    const d01 = dotProduct(v0v1, v0v2);
-    const d11 = dotProduct(v0v2, v0v2);
-    const d20 = dotProduct(v0p, v0v1);
-    const d21 = dotProduct(v0p, v0v2);
-    const denominator = d00 * d11 - d01 * d01;
-    const b1 = (d11 * d20 - d01 * d21) / denominator;
-    const b2 = (d00 * d21 - d01 * d20) / denominator;
-    const b0 = 1 - b1 - b2;
-    return [b0, b1, b2];
-  }
-  
-  function dotProduct(v1, v2) {
-    return v1[0] * v2[0] + v1[1] * v2[1];
-  }
 
 // Click listener
 function printCoordinates(event) {
@@ -56,11 +27,41 @@ function printCoordinates(event) {
     // Test colision
     let triangle_test = false;
     for (let i = 0; i < totalBunnies; i++) {
+      // Test the rabbit
       triangle_test = pointInPolygon(click,bunnies[i].getBounds());
-      if(triangle_test) { score += bunnies[i].getScore(); updateScore(); break;};
-    }
 
+      // If we have found it:
+      if(triangle_test) { 
+        // Update Score
+        updateScore(bunnies[i].getScore()); 
+        
+        // Run explosion animation
+        explode(i);
+
+        // Remove bunny
+        app.stage.removeChild(bunnies[i]);
+
+        // Create a new one
+        let bunny = new Bunny(PIXI.Assets.get("bunny"));
+        bunny.cursor = 'pointer';
+        bunnies[i] = bunny; 
+        app.stage.addChild(bunny);
+        break;};
+    }
     console.log(triangle_test);
+  }
+
+// Explode!
+function explode(i) {
+  let explosion = new PIXI.AnimatedSprite(explosionTextures);
+  app.stage.addChild(explosion);
+  explosion.x = bunnies[i].x;
+  explosion.y = bunnies[i].y;
+  explosion.anchor.set(0.5);
+  explosion.loop = false;
+  explosion.rotation = Math.random() * Math.PI;
+  explosion.scale.set(5. + Math.random() * 1.5);
+  explosion.play()
   }
 
 // Click listener
@@ -144,7 +145,8 @@ class Bunny extends PIXI.Sprite {
 }
 
 // Update score after click
-function updateScore() {
+function updateScore(newScore) {
+    score += newScore;
     scoreText.text = `Score: ${score}`;
 }
 
@@ -202,15 +204,17 @@ function createScene() {
 
     // Score text
     scoreText = new PIXI.Text(`Score: ${score}`);
-    scoreText.position.set(10, 10);
-
     scoreText.style = new PIXI.TextStyle({
       fontFamily: "PublicPixel",
       fontSize: 40,
       fill: 0xFFFFFF,
     });
-
+    scoreText.position.set(10, 10);
     app.stage.addChild(scoreText);
+
+    // Explosion
+    // Create an explosion AnimatedSprite
+
 }
 
 //  After loading the sprites
@@ -235,14 +239,27 @@ window.onload = function() {
     window.addEventListener('resize', resizeHandler, false);
 
     // Load sprites
-    PIXI.Assets.add('bunny', 'assets/bunny_sprite.png');
-    PIXI.Assets.add('grass', 'assets/grass.png');
-    // Load more if neded
-    // ...
+    PIXI.Assets.load('assets/mc.json').then(() => {
+      // Store the textures      
+      let i;  
+      for (i = 0; i < 26; i++) {
+          const animated_texture = PIXI.Texture.from(`Explosion_Sequence_A ${i + 1}.png`);
+          explosionTextures.push(animated_texture);
+      }
 
-    // Load the assets and get a resolved promise once both are loaded
-    const spritesPromise = PIXI.Assets.load(['bunny','grass']);
-    spritesPromise.then(doneLoading);
+      PIXI.Assets.add('bunny', 'assets/bunny_sprite.png');
+      PIXI.Assets.add('grass', 'assets/grass.png');
+        
+      // Load more if needed
+      // ...
+  
+      // Load the assets and get a resolved promise once both are loaded
+      const spritesPromise = PIXI.Assets.load(['bunny','grass']);
+      spritesPromise.then(doneLoading);
+
+    });
+  
+
 };
 
 
